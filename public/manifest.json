@@ -1,0 +1,24 @@
+{
+  "name": "Siap Siaga PMR",
+  "short_name": "SiapSiaga",
+  "description": "Sistem Pelaporan Tanggap Darurat Palang Merah Remaja (PMR) Sekolah",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
