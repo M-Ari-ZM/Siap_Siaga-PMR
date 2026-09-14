@@ -34,10 +34,10 @@
             @csrf
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Alamat Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@sch.id" class="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:ring-2 focus:ring-red-500 focus:outline-none @error('email') border-red-500 @enderror">
-                @error('email')
-                <p class="text-[11px] text-red-600 mt-1">{{ $message }}</p>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nomor Induk (NIS / NIP / ID Anggota)</label>
+                <input type="text" name="nomor_induk" value="{{ old('nomor_induk') }}" required placeholder="Contoh: 20241001 atau PMR-2024-001" class="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:ring-2 focus:ring-red-500 focus:outline-none @error('nomor_induk') border-red-500 @enderror">
+                @error('nomor_induk')
+                <p class="text-[11px] text-red-600 mt-1 font-semibold">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -64,17 +64,17 @@
                 ⚡ Demo Cepat (Klik untuk Isi Otomatis)
             </p>
             <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="fillDemo('ari@student.sch.id', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
+                <button type="button" onclick="fillDemo('20241001', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
                     <span class="block text-xs font-bold text-slate-800">👤 Siswa</span>
-                    <span class="block text-[10px] text-slate-400 truncate">Pengguna</span>
+                    <span class="block text-[10px] text-slate-400 truncate">NIS: 20241001</span>
                 </button>
-                <button type="button" onclick="fillDemo('budi@pmr.sch.id', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
+                <button type="button" onclick="fillDemo('PMR-2024-001', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
                     <span class="block text-xs font-bold text-slate-800">⛑️ PMR</span>
-                    <span class="block text-[10px] text-slate-400 truncate">Anggota</span>
+                    <span class="block text-[10px] text-slate-400 truncate">ID: PMR-001</span>
                 </button>
-                <button type="button" onclick="fillDemo('admin@siaga.sch.id', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
+                <button type="button" onclick="fillDemo('ADMIN-001', 'password')" class="px-2 py-2 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-center transition-all">
                     <span class="block text-xs font-bold text-slate-800">🛡️ Admin</span>
-                    <span class="block text-[10px] text-slate-400 truncate">Pengelola</span>
+                    <span class="block text-[10px] text-slate-400 truncate">ID: ADMIN-001</span>
                 </button>
             </div>
         </div>
@@ -86,16 +86,16 @@
 </div>
 
 <script>
-    function fillDemo(email, password) {
-        const emailInput = document.querySelector('input[name="email"]');
+    function fillDemo(nomorInduk, password) {
+        const idInput = document.querySelector('input[name="nomor_induk"]');
         const passwordInput = document.querySelector('input[name="password"]');
-        if (emailInput && passwordInput) {
-            emailInput.value = email;
+        if (idInput && passwordInput) {
+            idInput.value = nomorInduk;
             passwordInput.value = password;
-            emailInput.classList.add('ring-2', 'ring-red-500');
+            idInput.classList.add('ring-2', 'ring-red-500');
             passwordInput.classList.add('ring-2', 'ring-red-500');
             setTimeout(() => {
-                emailInput.classList.remove('ring-2', 'ring-red-500');
+                idInput.classList.remove('ring-2', 'ring-red-500');
                 passwordInput.classList.remove('ring-2', 'ring-red-500');
             }, 600);
         }

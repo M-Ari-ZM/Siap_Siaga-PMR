@@ -75,25 +75,25 @@ class DatabaseSeeder extends Seeder
         // 2. Seed Users & Roles
         // Admin
         $admin = User::create([
+            'nomor_induk' => 'ADMIN-001',
             'name' => 'Administrator PMR',
-            'email' => 'admin@siaga.sch.id',
             'phone_number' => '081234567890',
             'role' => 'admin',
             'password' => Hash::make('password'),
         ]);
 
-        // Student (Pelapor)
+        // Student (Pelapor Warga Sekolah)
         $studentAri = User::create([
+            'nomor_induk' => '20241001',
             'name' => 'Ari Siswa',
-            'email' => 'ari@student.sch.id',
             'phone_number' => '081234567891',
             'role' => 'student',
             'password' => Hash::make('password'),
         ]);
 
         $studentSiti = User::create([
+            'nomor_induk' => '20241002',
             'name' => 'Siti Nurhaliza',
-            'email' => 'siti@student.sch.id',
             'phone_number' => '081234567892',
             'role' => 'student',
             'password' => Hash::make('password'),
@@ -101,8 +101,8 @@ class DatabaseSeeder extends Seeder
 
         // PMR Members
         $pmrBudi = User::create([
+            'nomor_induk' => 'PMR-2024-001',
             'name' => 'Budi Santoso (PMR)',
-            'email' => 'budi@pmr.sch.id',
             'phone_number' => '081234567893',
             'role' => 'pmr',
             'password' => Hash::make('password'),
@@ -120,8 +120,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $pmrCitra = User::create([
+            'nomor_induk' => 'PMR-2024-002',
             'name' => 'Citra Lestari (PMR)',
-            'email' => 'citra@pmr.sch.id',
             'phone_number' => '081234567894',
             'role' => 'pmr',
             'password' => Hash::make('password'),
@@ -139,8 +139,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $pmrDimas = User::create([
+            'nomor_induk' => 'PMR-2023-015',
             'name' => 'Dimas Pratama (PMR)',
-            'email' => 'dimas@pmr.sch.id',
             'phone_number' => '081234567895',
             'role' => 'pmr',
             'password' => Hash::make('password'),

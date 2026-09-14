@@ -227,14 +227,13 @@
                 <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 block">Tambah Anggota PMR Baru</span>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input type="text" name="name" required placeholder="Nama Lengkap" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    <input type="email" name="email" required placeholder="Email Sekolah" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <input type="text" name="nisn_or_member_id" required placeholder="No ID Anggota / NISN PMR" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <input type="text" name="phone_number" required placeholder="No WhatsApp" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
-                    <input type="text" name="nisn_or_member_id" required placeholder="ID PMR/NISN" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
-                    <input type="text" name="class_grade" required placeholder="Kelas" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" name="phone_number" required placeholder="No WhatsApp / HP" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                    <input type="text" name="class_grade" required placeholder="Kelas (misal: XI MIPA 2)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
                 </div>
-                <input type="password" name="password" required placeholder="Password Akun (Min 6 karakter)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                <input type="password" name="password" required placeholder="Password Login Petugas (Min 6 karakter)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
 
                 <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors">
                     + Daftarkan Petugas PMR

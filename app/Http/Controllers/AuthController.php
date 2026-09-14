@@ -22,20 +22,20 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'nomor_induk' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
+        if (Auth::attempt(['nomor_induk' => $credentials['nomor_induk'], 'password' => $credentials['password']], $remember)) {
             $request->session()->regenerate();
             return $this->redirectBasedOnRole(Auth::user());
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan salah.',
-        ])->onlyInput('email');
+            'nomor_induk' => 'Nomor Induk (NIS/NIP) atau password salah.',
+        ])->onlyInput('nomor_induk');
     }
 
     public function showRegisterForm()
@@ -50,34 +50,24 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
+            'nomor_induk' => ['required', 'string', 'max:50', 'unique:users,nomor_induk'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone_number' => ['required', 'string', 'max:20'],
-            'role' => ['required', 'in:student,pmr'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'nisn_or_member_id' => ['nullable', 'string', 'max:50'],
-            'class_grade' => ['nullable', 'string', 'max:50'],
+        ], [
+            'nomor_induk.unique' => 'Nomor Induk (NIS/NIP) ini sudah terdaftar.',
+            'nomor_induk.required' => 'Nomor Induk (NIS/NIP) wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         $user = User::create([
+            'nomor_induk' => $validated['nomor_induk'],
             'name' => $validated['name'],
-            'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
-            'role' => $validated['role'],
+            'role' => 'student', // Semua pendaftaran mandiri otomatis menjadi warga sekolah (Siswa/Guru/Pelapor)
             'password' => Hash::make($validated['password']),
         ]);
-
-        // If registered as PMR, create profile
-        if ($user->role === 'pmr') {
-            PmrProfile::create([
-                'user_id' => $user->id,
-                'nisn_or_member_id' => $request->nisn_or_member_id ?? 'PMR-' . rand(1000, 9999),
-                'class_grade' => $request->class_grade ?? 'XI Umum',
-                'availability_status' => 'available',
-                'is_on_duty' => true,
-                'last_location_updated_at' => now(),
-            ]);
-        }
 
         Auth::login($user);
         $request->session()->regenerate();

@@ -31,15 +31,18 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 2. Protected Authenticated Routes
 Route::middleware('auth')->group(function () {
 
-    // Shared Emergency Status View & Live Polling API
-    Route::get('/emergency/create', [WebController::class, 'createEmergency'])->name('emergency.create');
-    Route::post('/emergency', [WebController::class, 'storeEmergency'])->name('emergency.store');
-    Route::get('/emergency/{emergency}', [WebController::class, 'showEmergency'])->name('emergency.show');
-    Route::get('/emergency/{emergency}/live-status', [WebController::class, 'getEmergencyLiveStatus'])->name('emergency.live-status');
+    // Emergency Routes (Shared across authenticated roles)
+    Route::prefix('emergency')->name('emergency.')->group(function () {
+        Route::get('/create', [WebController::class, 'createEmergency'])->name('create');
+        Route::post('/', [WebController::class, 'storeEmergency'])->name('store');
+        Route::get('/{emergency}', [WebController::class, 'showEmergency'])->name('show');
+        Route::get('/{emergency}/live-status', [WebController::class, 'getEmergencyLiveStatus'])->name('live-status');
+    });
 
     // Student Specific Routes
     Route::middleware('role:student,pmr,admin')->prefix('student')->name('student.')->group(function () {
         Route::get('/dashboard', [WebController::class, 'studentDashboard'])->name('dashboard');
+        // Alias backward compatibility untuk student.emergency.* jika dipanggil
         Route::get('/emergency/create', [WebController::class, 'createEmergency'])->name('emergency.create');
         Route::post('/emergency', [WebController::class, 'storeEmergency'])->name('emergency.store');
         Route::get('/emergency/{emergency}', [WebController::class, 'showEmergency'])->name('emergency.show');

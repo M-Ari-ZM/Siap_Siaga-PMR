@@ -83,16 +83,17 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'nisn_or_member_id' => 'required|string|max:50|unique:users,nomor_induk',
             'phone_number' => 'required|string|max:20',
-            'nisn_or_member_id' => 'required|string|max:50',
             'class_grade' => 'required|string|max:50',
             'password' => 'required|min:6',
+        ], [
+            'nisn_or_member_id.unique' => 'Nomor ID Anggota / NISN ini sudah terdaftar sebagai akun pengguna.',
         ]);
 
         $user = User::create([
+            'nomor_induk' => $validated['nisn_or_member_id'],
             'name' => $validated['name'],
-            'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
             'role' => 'pmr',
             'password' => Hash::make($validated['password']),
@@ -107,7 +108,7 @@ class AdminController extends Controller
             'last_location_updated_at' => now(),
         ]);
 
-        return back()->with('status', 'Anggota PMR baru berhasil ditambahkan.');
+        return back()->with('status', 'Anggota PMR baru berhasil didaftarkan.');
     }
 
     public function togglePmrDuty(User $user)
