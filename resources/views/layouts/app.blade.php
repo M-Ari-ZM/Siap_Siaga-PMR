@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#dc2626">
     <meta name="description" content="Sistem Pelaporan Tanggap Darurat Palang Merah Remaja (PMR) Sekolah">
     <title>@yield('title', 'Siap Siaga PMR')</title>
+    <link rel="icon" href="{{ asset('assets/pmr-icon.webp') }}" type="image/webp">
+    <link rel="alternate icon" href="{{ asset('assets/icons/icon-192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('assets/icons/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -152,5 +156,16 @@
     @endunless
 
     @stack('scripts')
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('PWA ServiceWorker registered with scope:', reg.scope))
+                    .catch((err) => console.warn('PWA ServiceWorker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
