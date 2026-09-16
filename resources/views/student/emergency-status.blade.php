@@ -118,6 +118,11 @@
         @endif
     </div>
 
+    <!-- 🤖 AI First-Aid Advisor & Triage PMR Component -->
+    @if(!empty($emergency->ai_guidance))
+        <x-ai-guidance-card :guidance="$emergency->ai_guidance" :role="Auth::user()->role" />
+    @endif
+
     <!-- Map -->
     <div class="bg-white rounded-xl p-4 border border-slate-200 space-y-3">
         <div class="flex items-center justify-between">

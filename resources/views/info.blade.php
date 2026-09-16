@@ -47,9 +47,9 @@
                 </div>
                 <h3 class="font-extrabold text-lg text-slate-900">1. Pelaporan Siswa</h3>
                 <p class="text-sm text-slate-600 mt-2">Kirim sinyal SOS, deteksi lokasi otomatis via GPS / pilih lokasi sekolah (Lapangan, UKS, Kantin, dll).</p>
-                <a href="{{ route('student.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 mt-4 hover:underline">
+                <!-- <a href="{{ route('student.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 mt-4 hover:underline">
                     Buka Dashboard Siswa &rarr;
-                </a>
+                </a> -->
             </div>
 
             <!-- Card 2: PMR Member -->
@@ -59,9 +59,9 @@
                 </div>
                 <h3 class="font-extrabold text-lg text-slate-900">2. Respon Cepat PMR</h3>
                 <p class="text-sm text-slate-600 mt-2">Anggota PMR menerima notifikasi, melihat jarak, menerima tiket, dan memperbarui status penanganan secara live.</p>
-                <a href="{{ route('pmr.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 mt-4 hover:underline">
+                <!-- <a href="{{ route('pmr.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 mt-4 hover:underline">
                     Buka Dashboard PMR &rarr;
-                </a>
+                </a> -->
             </div>
 
             <!-- Card 3: Admin & Logs -->
@@ -71,9 +71,9 @@
                 </div>
                 <h3 class="font-extrabold text-lg text-slate-900">3. Monitoring & Rekap</h3>
                 <p class="text-sm text-slate-600 mt-2">Pantau seluruh kejadian aktif secara terpusat, riwayat laporan tindakan P3K, dan data statistik evaluasi.</p>
-                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 mt-4 hover:underline">
+                <!-- <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 mt-4 hover:underline">
                     Buka Panel Admin &rarr;
-                </a>
+                </a> -->
             </div>
         </div>
 

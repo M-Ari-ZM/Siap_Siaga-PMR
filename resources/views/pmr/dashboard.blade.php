@@ -102,6 +102,29 @@
             </div>
             @endif
 
+            <!-- 🤖 AI Triage & Perlengkapan UKS Wajib Bawa -->
+            @if(!empty($emg->ai_guidance))
+            <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                        <span class="text-indigo-400">✨</span> Rekomendasi Alat UKS (AI Advisor)
+                    </span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-amber-300 font-bold">
+                        Triage: {{ $emg->ai_guidance['triage_level'] ?? 'Sedang' }}
+                    </span>
+                </div>
+                @if(!empty($emg->ai_guidance['recommended_equipment']))
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                    @foreach($emg->ai_guidance['recommended_equipment'] as $tool)
+                        <span class="px-2 py-1 rounded-md bg-slate-800 text-sky-300 text-[11px] font-medium border border-slate-700">
+                            🩹 {{ $tool }}
+                        </span>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            @endif
+
             <!-- Action Buttons -->
             <div class="pt-1 flex flex-wrap items-center gap-3">
                 @if($emg->status === 'reported' || $emg->status === 'searching_pmr')

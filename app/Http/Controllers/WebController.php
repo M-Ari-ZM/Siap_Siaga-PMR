@@ -45,8 +45,11 @@ class WebController extends Controller
         return view('student.emergency-create', compact('locations'));
     }
 
-    public function storeEmergency(Request $request, \App\Services\DispatchService $dispatchService)
-    {
+    public function storeEmergency(
+        Request $request, 
+        \App\Services\DispatchService $dispatchService,
+        \App\Services\AiAssistantService $aiAssistantService
+    ) {
         $user = Auth::user();
         $locationId = $request->location_id === 'custom' ? null : $request->location_id;
 
@@ -93,6 +96,19 @@ class WebController extends Controller
             'created_at' => now(),
         ]);
 
+        // 🤖 Jalankan Analisis AI First Aid & Rekomendasi Alat UKS
+        $aiGuidance = $aiAssistantService->generateFirstAidGuidance($emergency);
+        $emergency->update(['ai_guidance' => $aiGuidance]);
+
+        EmergencyTimeline::create([
+            'emergency_id' => $emergency->id,
+            'actor_id' => null,
+            'status' => 'ai_analyzed',
+            'title' => 'Panduan First-Aid AI Diterbitkan',
+            'description' => "Analisis Triage: {$aiGuidance['triage_level']}. Panduan pertolongan pertama & rekomendasi alat UKS siap.",
+            'created_at' => now(),
+        ]);
+
         // Jalankan Algoritma Dispatch Cerdas PMR Terdekat & Sesuai
         $assignedPmr = $dispatchService->dispatchBestPmr($emergency);
 
@@ -121,13 +137,19 @@ class WebController extends Controller
         ]);
     }
 
-    public function showEmergency(Emergency $emergency)
+    public function showEmergency(Emergency $emergency, \App\Services\AiAssistantService $aiAssistantService)
     {
         $user = Auth::user();
 
         // Ensure student can only view their own emergency, while PMR/Admin can view all
         if ($user->role === 'student' && $emergency->reporter_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        // Auto-generate AI guidance jika data lama belum memilikinya
+        if (empty($emergency->ai_guidance)) {
+            $guidance = $aiAssistantService->generateFirstAidGuidance($emergency);
+            $emergency->update(['ai_guidance' => $guidance]);
         }
 
         $emergency->load(['reporter', 'location', 'activeAssignment.pmrUser.pmrProfile', 'timelines', 'handlingReport']);

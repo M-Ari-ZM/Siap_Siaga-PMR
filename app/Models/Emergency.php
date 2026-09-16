@@ -18,6 +18,7 @@ class Emergency extends Model
         'longitude',
         'incident_type',
         'description',
+        'ai_guidance',
         'photo_path',
         'status',
         'reported_at',
@@ -27,6 +28,7 @@ class Emergency extends Model
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
+        'ai_guidance' => 'array',
         'reported_at' => 'datetime',
         'resolved_at' => 'datetime',
     ];
