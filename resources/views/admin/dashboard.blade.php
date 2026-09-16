@@ -240,31 +240,125 @@
                 </button>
             </form>
 
-            <!-- List Anggota PMR & Toggle Piket -->
+            <!-- List Anggota PMR & Aksi Lengkap (CRUD) -->
             <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
                 @foreach($pmrMembers as $pmr)
-                <div class="p-3 rounded-lg border border-slate-200 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div class="p-3 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-xs">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-xs shrink-0">
                             PMR
                         </div>
                         <div>
                             <h4 class="font-bold text-xs text-slate-900">{{ $pmr->name }}</h4>
-                            <p class="text-[11px] text-slate-500">{{ $pmr->pmrProfile->nisn_or_member_id ?? 'PMR' }} • {{ $pmr->pmrProfile->class_grade ?? 'XI' }} • <strong class="text-slate-800 uppercase">{{ $pmr->pmrProfile->availability_status ?? 'available' }}</strong></p>
+                            <p class="text-[11px] text-slate-500">
+                                {{ $pmr->nomor_induk }} • {{ $pmr->pmrProfile->class_grade ?? 'XI' }} • WA: {{ $pmr->phone_number ?? '-' }} • 
+                                <span class="font-bold uppercase {{ ($pmr->pmrProfile->availability_status ?? '') === 'available' ? 'text-emerald-600' : 'text-amber-600' }}">
+                                    {{ $pmr->pmrProfile->availability_status ?? 'available' }}
+                                </span>
+                            </p>
                         </div>
                     </div>
 
-                    <form action="{{ route('admin.pmr-members.toggle-duty', $pmr->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="px-3 py-1.5 rounded-lg text-[11px] font-black transition-colors {{ $pmr->pmrProfile && $pmr->pmrProfile->is_on_duty ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' }}">
-                            {{ $pmr->pmrProfile && $pmr->pmrProfile->is_on_duty ? 'ON PIKET' : 'OFF PIKET' }}
+                    <div class="flex items-center gap-1.5 self-end sm:self-auto">
+                        <!-- Toggle Piket -->
+                        <form action="{{ route('admin.pmr-members.toggle-duty', $pmr->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" title="Ubah status piket" class="px-2.5 py-1 rounded-md text-[10px] font-black transition-colors {{ $pmr->pmrProfile && $pmr->pmrProfile->is_on_duty ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' }}">
+                                {{ $pmr->pmrProfile && $pmr->pmrProfile->is_on_duty ? 'ON PIKET' : 'OFF PIKET' }}
+                            </button>
+                        </form>
+
+                        <!-- Edit Button (Buka Modal) -->
+                        <button type="button" onclick="openEditPmrModal({{ json_encode([
+                            'id' => $pmr->id,
+                            'name' => $pmr->name,
+                            'nisn_or_member_id' => $pmr->nomor_induk,
+                            'phone_number' => $pmr->phone_number,
+                            'class_grade' => $pmr->pmrProfile->class_grade ?? '',
+                            'availability_status' => $pmr->pmrProfile->availability_status ?? 'available',
+                            'update_url' => route('admin.pmr-members.update', $pmr->id)
+                        ]) }})" class="p-1 text-slate-400 hover:text-blue-600 rounded-md transition-colors" title="Edit Anggota">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                         </button>
-                    </form>
+
+                        <!-- Delete Button -->
+                        <form action="{{ route('admin.pmr-members.destroy', $pmr->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus anggota PMR {{ $pmr->name }}?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="p-1 text-slate-400 hover:text-red-600 rounded-md transition-colors" title="Hapus Anggota">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 @endforeach
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- Modal Edit Anggota PMR -->
+<div id="editPmrModal" class="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 border border-slate-200 shadow-2xl space-y-4 relative z-[101]">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-black text-base text-slate-900">Edit Data Anggota PMR</h3>
+            <button type="button" onclick="closeEditPmrModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+        </div>
+
+        <form id="editPmrForm" action="" method="POST" class="space-y-3">
+            @csrf
+            @method('PUT')
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                <input type="text" id="edit_pmr_name" name="name" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">ID Anggota / NISN</label>
+                    <input type="text" id="edit_pmr_nisn" name="nisn_or_member_id" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Kelas</label>
+                    <input type="text" id="edit_pmr_class" name="class_grade" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp / HP</label>
+                    <input type="text" id="edit_pmr_phone" name="phone_number" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Status Ketersediaan</label>
+                    <select id="edit_pmr_status" name="availability_status" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                        <option value="available">Available (Siap)</option>
+                        <option value="busy">Busy (Sibuk)</option>
+                        <option value="offline">Offline (Tidak Aktif)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Ganti Password (Kosongkan jika tidak diubah)</label>
+                <input type="password" name="password" placeholder="Minimal 6 karakter" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeEditPmrModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -323,6 +417,26 @@
                 .openPopup();
         }
     });
+
+    // 4. Modal Handler untuk Edit Anggota PMR
+    function openEditPmrModal(data) {
+        document.getElementById('editPmrForm').action = data.update_url;
+        document.getElementById('edit_pmr_name').value = data.name;
+        document.getElementById('edit_pmr_nisn').value = data.nisn_or_member_id;
+        document.getElementById('edit_pmr_class').value = data.class_grade;
+        document.getElementById('edit_pmr_phone').value = data.phone_number;
+        document.getElementById('edit_pmr_status').value = data.availability_status;
+
+        const modal = document.getElementById('editPmrModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeEditPmrModal() {
+        const modal = document.getElementById('editPmrModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 </script>
 @endpush
 @endsection

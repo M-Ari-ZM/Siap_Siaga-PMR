@@ -99,7 +99,7 @@
 
     <!-- Bottom Navigation Bar -->
     @unless(request()->routeIs('login', 'register', 'student.emergency.create'))
-    <div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200">
+    <div class="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200">
         <div class="max-w-sm mx-auto px-4">
             <nav class="flex items-center justify-between py-2">
 

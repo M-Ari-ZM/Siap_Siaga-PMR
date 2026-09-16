@@ -70,6 +70,8 @@ Route::middleware('auth')->group(function () {
 
         // Manajemen Anggota PMR & Jadwal Piket
         Route::post('/pmr-members', [\App\Http\Controllers\AdminController::class, 'storePmrMember'])->name('pmr-members.store');
+        Route::put('/pmr-members/{user}', [\App\Http\Controllers\AdminController::class, 'updatePmrMember'])->name('pmr-members.update');
+        Route::delete('/pmr-members/{user}', [\App\Http\Controllers\AdminController::class, 'destroyPmrMember'])->name('pmr-members.destroy');
         Route::post('/pmr-members/{user}/toggle-duty', [\App\Http\Controllers\AdminController::class, 'togglePmrDuty'])->name('pmr-members.toggle-duty');
 
         // Cetak / Export Rekap Kejadian & Penanganan Medis

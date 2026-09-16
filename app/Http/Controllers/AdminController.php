@@ -111,6 +111,53 @@ class AdminController extends Controller
         return back()->with('status', 'Anggota PMR baru berhasil didaftarkan.');
     }
 
+    public function updatePmrMember(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'nisn_or_member_id' => 'required|string|max:50|unique:users,nomor_induk,' . $user->id,
+            'phone_number' => 'required|string|max:20',
+            'class_grade' => 'required|string|max:50',
+            'availability_status' => 'required|in:available,busy,offline',
+            'password' => 'nullable|min:6',
+        ], [
+            'nisn_or_member_id.unique' => 'Nomor ID Anggota / NISN ini sudah digunakan oleh akun lain.',
+        ]);
+
+        $userData = [
+            'nomor_induk' => $validated['nisn_or_member_id'],
+            'name' => $validated['name'],
+            'phone_number' => $validated['phone_number'],
+        ];
+
+        if (!empty($validated['password'])) {
+            $userData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($userData);
+
+        if ($user->pmrProfile) {
+            $user->pmrProfile->update([
+                'nisn_or_member_id' => $validated['nisn_or_member_id'],
+                'class_grade' => $validated['class_grade'],
+                'availability_status' => $validated['availability_status'],
+            ]);
+        }
+
+        return back()->with('status', 'Data anggota PMR berhasil diperbarui.');
+    }
+
+    public function destroyPmrMember(User $user)
+    {
+        // Pastikan hanya role PMR yang dihapus lewat aksi ini
+        if ($user->role === 'pmr') {
+            $user->delete();
+            return back()->with('status', 'Anggota PMR berhasil dihapus.');
+        }
+
+        return back()->with('error', 'Hanya akun PMR yang dapat dihapus melalui menu ini.');
+    }
+
     public function togglePmrDuty(User $user)
     {
         if ($user->pmrProfile) {
