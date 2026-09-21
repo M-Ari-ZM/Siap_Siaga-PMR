@@ -20,6 +20,8 @@
 /storage/*.key
 /storage/pail
 /vendor
+/tests
+/TEST_CASES_REPORT.md
 Homestead.json
 Homestead.yaml
 Thumbs.db
