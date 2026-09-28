@@ -31,18 +31,18 @@
         </div>
     </div>
 
-    <!-- Live Status Banner -->
-    <div class="bg-slate-900 rounded-xl p-5 text-white space-y-4">
-        <div class="flex items-center justify-between">
+    <!-- Live Status Banner (Light Theme Selaras) -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-sm bg-emerald-400 inline-block"></span>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Live Status Pelacakan</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Live Status Pelacakan</span>
             </div>
-            <span class="text-xs text-slate-400">{{ $emergency->reported_at->format('H:i') }} WIB</span>
+            <span class="text-xs font-bold text-slate-400">{{ $emergency->reported_at->format('H:i') }} WIB</span>
         </div>
 
         <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">
+            <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
                 @if($emergency->status === 'reported' || $emergency->status === 'searching_pmr')
                     🔍 Sedang Menghubungi Petugas PMR Terdekat...
                 @elseif($emergency->status === 'pmr_assigned')
@@ -61,8 +61,8 @@
                     ℹ️ Status: {{ ucfirst($emergency->status) }}
                 @endif
             </h2>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1">
-                Lokasi: <strong class="text-white">{{ $emergency->location_display }}</strong> • Jenis: <strong class="text-white uppercase">{{ $emergency->incident_type }}</strong>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Lokasi: <strong class="text-slate-900">{{ $emergency->location_display }}</strong> • Jenis: <strong class="text-red-600 uppercase">{{ $emergency->incident_type }}</strong>
             </p>
         </div>
 
@@ -70,19 +70,19 @@
         @if(Auth::user()->role === 'pmr' || Auth::user()->role === 'admin')
             <!-- Jika yang melihat adalah PMR atau Admin: Tampilkan Informasi SI PELAPOR -->
             @if($emergency->reporter)
-            <div class="p-4 rounded-lg bg-white/10 border border-white/15 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-blue-600 text-white font-black flex items-center justify-center text-xs shrink-0">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 font-extrabold flex items-center justify-center text-sm shrink-0 border border-blue-200">
                         👤
                     </div>
                     <div>
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-300 block">Identitas Pelapor</span>
-                        <h4 class="font-bold text-sm text-white">{{ $emergency->reporter->name }}</h4>
-                        <p class="text-[11px] text-slate-300">No. Induk: {{ $emergency->reporter->nomor_induk }} • WA/HP: {{ $emergency->reporter->phone_number ?? '-' }}</p>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 block">Identitas Pelapor</span>
+                        <h4 class="font-bold text-sm text-slate-900">{{ $emergency->reporter->name }}</h4>
+                        <p class="text-[11px] text-slate-500">No. Induk: {{ $emergency->reporter->nomor_induk }} • WA/HP: {{ $emergency->reporter->phone_number ?? '-' }}</p>
                     </div>
                 </div>
                 @if($emergency->reporter->phone_number)
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $emergency->reporter->phone_number) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors">
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $emergency->reporter->phone_number) }}" target="_blank" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors self-start sm:self-auto">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
@@ -94,19 +94,19 @@
         @else
             <!-- Jika yang melihat adalah SISWA (Pelapor): Tampilkan Informasi PETUGAS PMR Yang Ditugaskan -->
             @if($emergency->activeAssignment && $emergency->activeAssignment->pmrUser)
-            <div class="p-4 rounded-lg bg-white/10 border border-white/15 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-red-600 text-white font-black flex items-center justify-center text-xs shrink-0">
+                    <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 font-extrabold flex items-center justify-center text-xs shrink-0 border border-red-200">
                         PMR
                     </div>
                     <div>
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-red-300 block">Petugas Yang Menangani</span>
-                        <h4 class="font-bold text-sm text-white">{{ $emergency->activeAssignment->pmrUser->name }}</h4>
-                        <p class="text-[11px] text-slate-300">{{ $emergency->activeAssignment->pmrUser->pmrProfile->class_grade ?? 'Petugas PMR' }} • Jarak ~{{ $emergency->activeAssignment->distance_meters ?? '40' }} meter</p>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-red-700 block">Petugas Yang Menangani</span>
+                        <h4 class="font-bold text-sm text-slate-900">{{ $emergency->activeAssignment->pmrUser->name }}</h4>
+                        <p class="text-[11px] text-slate-500">{{ $emergency->activeAssignment->pmrUser->pmrProfile->class_grade ?? 'Petugas PMR' }} • Jarak ~{{ $emergency->activeAssignment->distance_meters ?? '40' }} meter</p>
                     </div>
                 </div>
                 @if($emergency->activeAssignment->pmrUser->phone_number)
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $emergency->activeAssignment->pmrUser->phone_number) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors">
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $emergency->activeAssignment->pmrUser->phone_number) }}" target="_blank" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors self-start sm:self-auto">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
@@ -189,22 +189,22 @@
     </div>
     @endif
 
-    <!-- Action Bar Khusus Petugas PMR (Jika sedang melihat detail kasus aktif miliknya) -->
-    @if(Auth::user()->role === 'pmr' && $emergency->activeAssignment && $emergency->activeAssignment->pmr_user_id === Auth::id() && !in_array($emergency->status, ['resolved', 'cancelled']))
+    <!-- Action Bar Khusus Petugas PMR (Jika sedang melihat detail kasus aktif) -->
+    @if(Auth::user()->role === 'pmr' && !in_array($emergency->status, ['resolved', 'cancelled']))
     <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm sticky bottom-20 z-30 flex items-center justify-between gap-3">
-        @if($emergency->activeAssignment->status === 'offered')
+        @if($emergency->status === 'reported' || $emergency->status === 'searching_pmr' || $emergency->status === 'pmr_assigned')
             <form action="{{ route('pmr.emergency.accept', $emergency->id) }}" method="POST" class="w-full">
                 @csrf
-                <button type="submit" class="w-full py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-colors flex items-center justify-center gap-2">
-                    ✅ TERIMA & AMBIL TUGAS INI
+                <button type="submit" class="w-full py-3 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-black text-xs transition-colors flex items-center justify-center gap-2">
+                    ✅ TERIMA & AMBIL TUGAS DARURAT
                 </button>
             </form>
-        @elseif($emergency->status === 'pmr_assigned' || $emergency->status === 'on_the_way')
+        @elseif($emergency->status === 'on_the_way')
             <form action="{{ route('pmr.emergency.status', $emergency->id) }}" method="POST" class="w-full">
                 @csrf
-                <input type="hidden" name="status" value="{{ $emergency->status === 'pmr_assigned' ? 'on_the_way' : 'handling' }}">
+                <input type="hidden" name="status" value="handling">
                 <button type="submit" class="w-full py-3 px-4 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-black text-xs transition-colors flex items-center justify-center gap-2">
-                    {{ $emergency->status === 'pmr_assigned' ? '🏃 SAYA SEDANG MENUJU LOKASI' : '🩹 SAYA SUDAH TIBA & MEMULAI PENANGANAN' }}
+                    🩹 SAYA SUDAH TIBA & MULAI PENANGANAN
                 </button>
             </form>
         @elseif($emergency->status === 'handling')

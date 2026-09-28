@@ -102,49 +102,31 @@
             </div>
             @endif
 
-            <!-- 🤖 AI Triage & Perlengkapan UKS Wajib Bawa -->
+            <!-- 🤖 AI Triage & Perlengkapan UKS Wajib Bawa (Modular Component) -->
             @if(!empty($emg->ai_guidance))
-            <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
-                        <span class="text-indigo-400">✨</span> Rekomendasi Alat UKS (AI Advisor)
-                    </span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-amber-300 font-bold">
-                        Triage: {{ $emg->ai_guidance['triage_level'] ?? 'Sedang' }}
-                    </span>
-                </div>
-                @if(!empty($emg->ai_guidance['recommended_equipment']))
-                <div class="flex flex-wrap gap-1.5 pt-1">
-                    @foreach($emg->ai_guidance['recommended_equipment'] as $tool)
-                        <span class="px-2 py-1 rounded-md bg-slate-800 text-sky-300 text-[11px] font-medium border border-slate-700">
-                            🩹 {{ $tool }}
-                        </span>
-                    @endforeach
-                </div>
-                @endif
-            </div>
+                <x-ai-guidance-card :guidance="$emg->ai_guidance" role="pmr" />
             @endif
 
             <!-- Action Buttons -->
             <div class="pt-1 flex flex-wrap items-center gap-3">
-                @if($emg->status === 'reported' || $emg->status === 'searching_pmr')
+                @if($emg->status === 'reported' || $emg->status === 'searching_pmr' || $emg->status === 'pmr_assigned')
                 <form action="{{ route('pmr.emergency.accept', $emg->id) }}" method="POST" class="flex-1">
                     @csrf
                     <button type="submit" class="w-full py-3 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors">
-                        TERIMA PANGGILAN DARURAT
+                        ✅ TERIMA & AMBIL TUGAS DARURAT
                     </button>
                 </form>
-                @elseif($emg->status === 'pmr_assigned' || $emg->status === 'on_the_way')
+                @elseif($emg->status === 'on_the_way')
                 <form action="{{ route('pmr.emergency.status', $emg->id) }}" method="POST" class="flex-1">
                     @csrf
                     <input type="hidden" name="status" value="handling">
                     <button type="submit" class="w-full py-3 px-4 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors">
-                        SAYA SUDAH TIBA & MULAI PENANGANAN
+                        🩹 SAYA SUDAH TIBA & MULAI PENANGANAN
                     </button>
                 </form>
                 @elseif($emg->status === 'handling')
                 <a href="{{ route('pmr.emergency.report', $emg->id) }}" class="flex-1 py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 text-center transition-colors">
-                    ISI LAPORAN & SELESAIKAN PENANGANAN
+                    📋 ISI LAPORAN & SELESAIKAN PENANGANAN
                 </a>
                 @endif
 

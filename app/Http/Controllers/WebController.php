@@ -222,6 +222,27 @@ class WebController extends Controller
     public function acceptEmergency(Emergency $emergency)
     {
         $pmrUser = Auth::user();
+        
+        // Update atau buat assignment untuk PMR ini jika belum ada
+        $assignment = EmergencyAssignment::where('emergency_id', $emergency->id)
+            ->where('pmr_user_id', $pmrUser->id)
+            ->first();
+
+        if ($assignment) {
+            $assignment->update([
+                'status' => 'accepted',
+                'responded_at' => now(),
+            ]);
+        } else {
+            EmergencyAssignment::create([
+                'emergency_id' => $emergency->id,
+                'pmr_user_id' => $pmrUser->id,
+                'status' => 'accepted',
+                'offered_at' => now(),
+                'responded_at' => now(),
+            ]);
+        }
+
         $emergency->update(['status' => 'on_the_way']);
 
         EmergencyTimeline::create([
