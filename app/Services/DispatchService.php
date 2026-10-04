@@ -25,6 +25,7 @@ class DispatchService
             ->with(['pmrProfile', 'pmrAssignments' => function ($q) {
                 $q->whereIn('status', ['offered', 'accepted']);
             }])
+            ->withCount('handlingReports')
             ->get();
 
         if ($pmrCandidates->isEmpty()) {
@@ -34,6 +35,7 @@ class DispatchService
                     $query->where('is_on_duty', true);
                 })
                 ->with(['pmrProfile', 'pmrAssignments'])
+                ->withCount('handlingReports')
                 ->get();
         }
 
@@ -41,7 +43,10 @@ class DispatchService
             return null;
         }
 
-        $scoredCandidates = $pmrCandidates->map(function ($pmr) use ($emergency) {
+        // Tentukan apakah insiden tergolong kritis (misal: kecelakaan atau cedera berat)
+        $isCriticalIncident = in_array(strtolower($emergency->incident_type ?? ''), ['kecelakaan', 'cedera']);
+
+        $scoredCandidates = $pmrCandidates->map(function ($pmr) use ($emergency, $isCriticalIncident) {
             $profile = $pmr->pmrProfile;
             
             // 1. Hitung jarak (dalam meter)
@@ -56,24 +61,34 @@ class DispatchService
             }
 
             // 2. Skoring algoritma (Skala 0 - 100)
-            $score = 50.0; // Base score
+            $score = 40.0; // Base score
 
-            // Faktor Piket (+30 poin)
+            // Faktor Piket (+25 poin)
             if ($profile && $profile->is_on_duty) {
-                $score += 30;
+                $score += 25;
             }
 
-            // Faktor Jarak (+20 poin untuk jarak < 50m, berkurang jika lebih jauh)
-            $distanceScore = max(0, 20 - ($distance / 20));
+            // Faktor Jarak (+25 poin untuk jarak < 20m, berkurang linier jika lebih jauh)
+            $distanceScore = max(0, 25 - ($distance / 20));
             $score += $distanceScore;
 
-            // Faktor Beban Tugas (-20 jika sedang ada tugas aktif)
+            // Faktor Pengalaman Penanganan Kasus (handlingReports_count)
+            $handledCount = $pmr->handling_reports_count ?? 0;
+            // Jika kasus kritis (kecelakaan), pengalaman memiliki bobot lebih tinggi (+5 per kasus maks 25 poin)
+            // Kasus reguler (+3 per kasus maks 15 poin)
+            $experienceWeight = $isCriticalIncident ? 5 : 3;
+            $maxExpBonus = $isCriticalIncident ? 25 : 15;
+            $experienceScore = min($maxExpBonus, $handledCount * $experienceWeight);
+            $score += $experienceScore;
+
+            // Faktor Beban Tugas Aktif (-20 jika sedang ada tugas yang belum selesai)
             $activeLoad = $pmr->pmrAssignments->count();
             $score -= ($activeLoad * 20);
 
             return [
                 'user' => $pmr,
                 'distance' => round($distance),
+                'handled_count' => $handledCount,
                 'score' => round(max(10, min(99, $score)), 1),
             ];
         });
@@ -99,12 +114,14 @@ class DispatchService
 
         $emergency->update(['status' => 'pmr_assigned']);
 
+        $expText = $best['handled_count'] > 0 ? " (Pengalaman: {$best['handled_count']} penanganan)" : "";
+
         EmergencyTimeline::create([
             'emergency_id' => $emergency->id,
             'actor_id' => $bestUser->id,
             'status' => 'pmr_assigned',
             'title' => 'Petugas PMR Otomatis Ditugaskan',
-            'description' => "Petugas {$bestUser->name} terpilih otomatis (Skor Kesesuaian: {$best['score']}%, Jarak: ~{$best['distance']}m).",
+            'description' => "Petugas {$bestUser->name}{$expText} terpilih otomatis (Skor Kesesuaian: {$best['score']}%, Jarak: ~{$best['distance']}m).",
             'created_at' => now(),
         ]);
 

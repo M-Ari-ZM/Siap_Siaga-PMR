@@ -33,8 +33,7 @@ class WebController extends Controller
             ->where('reporter_id', $user->id)
             ->where('status', 'resolved')
             ->latest('reported_at')
-            ->take(5)
-            ->get();
+            ->paginate(5);
 
         return view('student.dashboard', compact('user', 'activeEmergencies', 'recentEmergencies'));
     }
@@ -178,8 +177,7 @@ class WebController extends Controller
             ->where('status', 'resolved')
             ->whereIn('id', $assignedIds)
             ->latest('resolved_at')
-            ->take(10)
-            ->get();
+            ->paginate(5);
 
         return view('pmr.dashboard', compact('pmrUser', 'activeEmergencies', 'handledEmergencies'));
     }

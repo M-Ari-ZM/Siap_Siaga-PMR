@@ -83,6 +83,14 @@
         <div id="admin_school_map" class="w-full h-80 rounded-lg border border-slate-200"></div>
     </div>
 
+    <!-- 3. Tabel Riwayat & Live Emergency Logs -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h3 class="font-black text-base text-slate-900">Riwayat & Log Panggilan Darurat</h3>
+                <p class="text-xs text-slate-500">Semua insiden yang pernah dilaporkan siswa di lingkungan sekolah</p>
+            </div>
+
             <!-- Filter buttons -->
             <div class="flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
                 <a href="{{ route('admin.dashboard') }}" class="px-3 py-1.5 rounded-lg border {{ !request()->filled('status') ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' }}">
@@ -158,6 +166,17 @@
                 </tbody>
             </table>
         </div>
+
+        @if($emergencies->hasPages())
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+            <div class="text-xs text-slate-500 font-medium">
+                Menampilkan <span class="font-bold text-slate-800">{{ $emergencies->firstItem() ?? 0 }}</span> - <span class="font-bold text-slate-800">{{ $emergencies->lastItem() ?? 0 }}</span> dari <span class="font-bold text-slate-800">{{ $emergencies->total() }}</span> laporan
+            </div>
+            <div>
+                {{ $emergencies->links() }}
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- 3. Dua Kolom Manajemen: Master Lokasi Sekolah & Anggota / Jadwal Piket PMR -->
@@ -175,14 +194,19 @@
             <!-- Form Tambah Lokasi Baru -->
             <form action="{{ route('admin.locations.store') }}" method="POST" class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
                 @csrf
-                <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 block">Tambah Titik Lokasi Baru</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 block">Tambah Titik Lokasi Baru</span>
+                    <span class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        💡 Klik pada peta di atas untuk auto-fill koordinat
+                    </span>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input type="text" name="name" required placeholder="Nama Lokasi (misal: UKS Gedung A)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-red-500 focus:outline-none">
                     <input type="text" name="building" placeholder="Gedung / Lantai (misal: Lantai 1)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" name="latitude" placeholder="Latitude (opsional)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
-                    <input type="text" name="longitude" placeholder="Longitude (opsional)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none">
+                    <input type="text" id="admin_new_loc_lat" name="latitude" placeholder="Latitude (klik peta / isi)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none bg-white">
+                    <input type="text" id="admin_new_loc_lng" name="longitude" placeholder="Longitude (klik peta / isi)" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium focus:outline-none bg-white">
                 </div>
                 <button type="submit" class="w-full py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors">
                     + Simpan Titik Lokasi
@@ -402,8 +426,8 @@
         }
     });
 
-    // 3. Render Insiden Darurat Aktif (Marker Merah — kotak, tanpa animasi CSS)
-    const activeEmergencies = @json($emergencies->whereNotIn('status', ['resolved', 'cancelled'])->values());
+    // 3. Render Insiden Darurat Aktif (Marker Merah — kotak, dari seluruh data aktif di sistem)
+    const activeEmergencies = @json($activeEmergenciesForMap);
     activeEmergencies.forEach(emg => {
         if (emg.latitude && emg.longitude) {
             const redIcon = L.divIcon({
@@ -415,6 +439,34 @@
             L.marker([emg.latitude, emg.longitude], { icon: redIcon }).addTo(adminMap)
                 .bindPopup(`<strong>🚨 EMERGENCY #${emg.emergency_code}</strong><br>Tipe: ${emg.incident_type.toUpperCase()}<br>Status: ${emg.status.toUpperCase()}`)
                 .openPopup();
+        }
+    });
+
+    // 4. Admin Interactive Map Click to Pick Location Coordinate
+    let newLocationMarker = null;
+    adminMap.on('click', function(e) {
+        const lat = parseFloat(e.latlng.lat).toFixed(8);
+        const lng = parseFloat(e.latlng.lng).toFixed(8);
+
+        const inputLat = document.getElementById('admin_new_loc_lat');
+        const inputLng = document.getElementById('admin_new_loc_lng');
+
+        if (inputLat && inputLng) {
+            inputLat.value = lat;
+            inputLng.value = lng;
+
+            if (newLocationMarker) {
+                newLocationMarker.setLatLng([lat, lng]);
+            } else {
+                const pickerIcon = L.divIcon({
+                    className: 'custom-picker-icon',
+                    html: `<div style="background-color:#2563eb; width:16px; height:16px; border-radius:2px; border:2px solid #ffffff; box-shadow:0 0 8px rgba(37,99,235,0.8);"></div>`,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+                newLocationMarker = L.marker([lat, lng], { icon: pickerIcon }).addTo(adminMap);
+            }
+            newLocationMarker.bindPopup(`<strong>📍 Titik Lokasi Baru Terpilih</strong><br>Lat: ${lat}<br>Lng: ${lng}`).openPopup();
         }
     });
 

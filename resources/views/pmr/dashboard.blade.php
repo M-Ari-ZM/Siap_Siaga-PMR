@@ -149,9 +149,12 @@
 
     <!-- PMR Response History -->
     <div class="space-y-3">
-        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-            Riwayat Penanganan Anda
-        </h3>
+        <div class="flex items-center justify-between">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                Riwayat Penanganan Anda
+            </h3>
+            <span class="text-xs text-slate-400">Total {{ $handledEmergencies->total() }} Selesai</span>
+        </div>
 
         @forelse($handledEmergencies as $handled)
         <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-4">
@@ -173,6 +176,12 @@
             <p class="text-xs text-slate-400">Belum ada riwayat penanganan selesai.</p>
         </div>
         @endforelse
+
+        @if($handledEmergencies->hasPages())
+        <div class="pt-2 flex items-center justify-center">
+            {{ $handledEmergencies->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

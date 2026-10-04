@@ -24,7 +24,11 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
 
-        $emergencies = $query->latest('reported_at')->get();
+        // Pagination untuk tabel riwayat (10 per halaman)
+        $emergencies = $query->latest('reported_at')->paginate(10)->withQueryString();
+
+        // Insiden aktif khusus untuk dirender di Peta Leaflet Admin
+        $activeEmergenciesForMap = Emergency::whereNotIn('status', ['resolved', 'cancelled'])->get();
 
         $locations = Location::withCount('emergencies')->get();
         $pmrMembers = User::where('role', 'pmr')->with('pmrProfile')->get();
@@ -38,7 +42,7 @@ class AdminController extends Controller
             'on_duty_pmr' => PmrProfile::where('is_on_duty', true)->count(),
         ];
 
-        return view('admin.dashboard', compact('emergencies', 'locations', 'pmrMembers', 'stats'));
+        return view('admin.dashboard', compact('emergencies', 'activeEmergenciesForMap', 'locations', 'pmrMembers', 'stats'));
     }
 
     // --- MANAJEMEN LOKASI SEKOLAH ---

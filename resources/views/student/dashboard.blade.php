@@ -86,7 +86,7 @@
     <div class="space-y-3">
         <div class="flex items-center justify-between">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Riwayat Laporan Sebelumnya</h3>
-            <span class="text-xs text-slate-400">{{ $recentEmergencies->count() }} Laporan</span>
+            <span class="text-xs text-slate-400">Total {{ $recentEmergencies->total() }} Laporan</span>
         </div>
 
         @forelse($recentEmergencies as $history)
@@ -109,6 +109,12 @@
             <p class="text-sm text-slate-400">Belum ada riwayat laporan darurat.</p>
         </div>
         @endforelse
+
+        @if($recentEmergencies->hasPages())
+        <div class="pt-2 flex items-center justify-center">
+            {{ $recentEmergencies->links() }}
+        </div>
+        @endif
     </div>
 </div>
 @endsection
